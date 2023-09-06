@@ -64,7 +64,7 @@ if (
     global_compile_args.append("-Os")
 
 
-if sys.platform == 'darwin' or 'clang' in plat_compiler:
+if sys.platform == 'darwin' or 'clang' in plat_compiler or is_linux:
     # The clang compiler doesn't use --std=c++11 by default
     cpp_compile_args.append("--std=gnu++11")
 elif is_win and "MSC" in plat_compiler:
