@@ -5,7 +5,11 @@
 3.0.0rc2 (unreleased)
 =====================
 
-- Nothing changed yet.
+- Python 3.12: Installing a system profiler and using greenlets no
+  longer crashes (debug builds of) the interpreter due to internal
+  assertion failures. While system profilers now work, their results
+  are not entirely correct or compatible with previous versions when
+  greenlets are switched. More work is needed in this area.
 
 
 3.0.0rc1 (2023-09-01)

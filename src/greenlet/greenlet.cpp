@@ -13,6 +13,11 @@
 
 
 #define PY_SSIZE_T_CLEAN
+#ifdef GREENLET_USE_BUILD_CORE
+// we need access to internal implementation headers that can only be included
+// if this symbol is defined on Python 3.12+.
+#define Py_BUILD_CORE
+#endif
 #include <Python.h>
 #include "structmember.h" // PyMemberDef
 

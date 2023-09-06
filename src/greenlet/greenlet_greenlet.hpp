@@ -5,6 +5,9 @@
 */
 
 #define PY_SSIZE_T_CLEAN
+#if GREENLET_PY312
+#  define Py_BUILD_CORE
+#endif
 #include <Python.h>
 
 #include "greenlet_compiler_compat.hpp"
@@ -24,6 +27,7 @@ using greenlet::refs::BorrowedGreenlet;
 
 #if GREENLET_PY312
 #  include "internal/pycore_frame.h"
+#  include "internal/pycore_interp.h"
 #endif
 
 // XXX: TODO: Work to remove all virtual functions
@@ -119,6 +123,8 @@ namespace greenlet
 #endif
 #if GREENLET_PY312
         _PyInterpreterFrame* _prev_frame;
+        uint64_t monitoring_version;
+        _Py_GlobalMonitors monitors;
 #endif
 
     public:
@@ -730,6 +736,8 @@ PythonState::PythonState()
 #endif
 #if GREENLET_PY312
     ,_prev_frame(nullptr)
+    ,monitoring_version(0)
+    ,monitors()
 #endif
 {
 #if GREENLET_USE_CFRAME
@@ -824,6 +832,8 @@ void PythonState::operator<<(const PyThreadState *const tstate) noexcept
         this->_prev_frame = frame->f_frame->previous;
         frame->f_frame->previous = nullptr;
     }
+    this->monitoring_version = tstate->interp->monitoring_version;
+    this->monitors = tstate->interp->monitors;
   #endif
   #if GREENLET_PY312
     this->trash_delete_nesting = tstate->trash.delete_nesting;
@@ -866,6 +876,8 @@ void PythonState::operator>>(PyThreadState *const tstate) noexcept
       frame->f_frame->previous = this->_prev_frame;
     }
     this->_prev_frame = nullptr;
+    tstate->interp->monitoring_version = this->monitoring_version;
+    tstate->interp->monitors = this->monitors;
   #else // \/ 3.11
     tstate->recursion_remaining = tstate->recursion_limit - this->recursion_depth;
   #endif // GREENLET_PY312

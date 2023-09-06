@@ -11,6 +11,16 @@ methods, so to improve support for debugging, tracing and profiling greenlet
 based code there are new functions in the greenlet module, `gettrace`
 and `settrace`.
 
+.. caution::
+
+   On Python 3.12, standard Python tracing and profiling may yield
+   incomplete results when greenlets are used, if the profiler is
+   installed from inside a running greenlet.
+
+   If you'll be using standard tracing and profiling, it is
+   recommended to install a profiler globally in the main greenlet
+   before spawning any other greenlets.
+
 Trace Callback Functions
 ========================
 

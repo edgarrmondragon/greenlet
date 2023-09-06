@@ -11,6 +11,8 @@ from setuptools import setup
 from setuptools import Extension
 from setuptools import find_packages
 
+PY_312 = sys.version_info[:2] >= (3, 12)
+
 # Extra compiler arguments passed to *all* extensions.
 global_compile_args = []
 
@@ -122,6 +124,12 @@ def _find_platform_headers():
 def _find_impl_headers():
     return glob.glob(GREENLET_SRC_DIR + "*.hpp")
 
+MACROS = []
+if is_win:
+    MACROS.append(('WIN32', '1'))
+if PY_312:
+    MACROS.append(('GREENLET_USE_BUILD_CORE', '1'))
+
 if hasattr(sys, "pypy_version_info"):
     ext_modules = []
     headers = []
@@ -156,11 +164,7 @@ else:
                 GREENLET_HEADER,
                 GREENLET_SRC_DIR + 'slp_platformselect.h',
             ] + _find_platform_headers() + _find_impl_headers(),
-            define_macros=[
-            ] + ([
-                ('WIN32', '1'),
-            ] if is_win else [
-            ])
+            define_macros=MACROS,
         ),
         # Test extensions.
         #
