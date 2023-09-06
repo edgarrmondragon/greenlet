@@ -27,8 +27,22 @@ using greenlet::refs::BorrowedGreenlet;
 
 #if GREENLET_PY312
 #  include "internal/pycore_frame.h"
+// Using this structure makes us pretty fragile.
+// It has a very large number of fields, some of which are
+// arrays, so merely changing some constants will break the ABI
+// (which CPython doesn't promise is stable at this level anyway).
 #  include "internal/pycore_interp.h"
-#endif
+
+#if PY_VERSION_HEX < 0x30C00C2
+// For Python 3.12rc1 and below, _Py_GlobalMonitors was known as
+// _Py_Monitors.
+// In either case, they are defined as:
+//    struct THING {
+//       uint8_t tools[15];
+//    }
+#define _Py_GlobalMonitors _Py_Monitors
+#endif // 3.12rc2
+#endif // GREENLET_PY312
 
 // XXX: TODO: Work to remove all virtual functions
 // for speed of calling and size of objects (no vtable).
